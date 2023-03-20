@@ -1,0 +1,1 @@
+letrec ones = 1 : ones in if False then ones else []

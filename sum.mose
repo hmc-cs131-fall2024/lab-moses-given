@@ -1,0 +1,16 @@
+-- sum function in Moses
+--
+
+letrec sum (l :: [REAL]) = case l of []     -> 0
+                                   | n : ns -> n + sum ns
+in     sum [54.2, -29.3, 42.1, -25]
+
+-- Things to notice compared to Haskell:
+--      * Because the definition of sum refers to itself, we must use letrec
+--        rather than let.
+--      * We need to specify the type of function parameters.
+--      * The only kind of pattern matching we have on lists is case
+--        expressions, which are very rigid in their form; you *must* have
+--        the [] first case and head : tail as the second case.  If you
+--        want more complex matches, you'll have to nest case expressions.
+--      * Notice the subtyping.  The list includes -25, which is an INT.

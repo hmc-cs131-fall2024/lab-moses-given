@@ -1,0 +1,23 @@
+-- function to calculate the length of a list
+--
+
+letrec len (list :: [ANY]) =
+                 case list of []    -> 0
+                            | h : t -> 1 + (len t)
+in  (len [10,20,30,40], len ["Hello", "World"], len [], len ["a", 1, [], 3.2])
+
+-- Things to notice compared to Haskell:
+--      * Because the definition of len refers to itself, we must use letrec
+--        rather than let.
+--      * We need to specify the type of function parameters.
+--      * The only kind of pattern matching we have on lists is case
+--        expressions, which are very rigid in their form; you *must* have
+--        the [] first case and head : tail as the second case.  If you
+--        want more complex matches, you'll have to nest case expressions.
+--        THE ONLY VARIATION YOU CAN HAVE IN CASE PATTERNS IS THE NAMES OF THE
+--        VARIABLES, EVERYTHING ELSE MUST LOOK EXACTLY AS IT DOES ABOVE.  This
+--        may be annoying for writing code, but you'll be glad of the simple
+--        form when you're writing the type checker :).
+--      * Notice the subtyping. The len function doesn't care what kind of things are
+--        in the list.  We also have one list that is very heterogenous.
+

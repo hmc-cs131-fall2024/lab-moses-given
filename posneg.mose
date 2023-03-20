@@ -1,0 +1,21 @@
+-- function to partition a list into its positive and negative values
+--
+
+letrec posneg (l :: [INT]) =
+    case l of []     -> ([],[])
+            | n : ns -> let (pos,neg) = posneg ns
+                        in if n >= 0 then (n:pos, neg)
+                                     else (pos,   n:neg)
+in     posneg [54, -29, 42, -25]
+
+-- Things to notice compared to Haskell:
+--      * Because the definition of posneg refers to itself, we must use letrec
+--        rather than let.
+--      * We need to specify the type of function parameters.
+--      * The only kind of pattern matching we have on lists is case
+--        expressions, which are very rigid in their form; you *must* have
+--        the [] first case and head : tail as the second case.  If you
+--        want more complex matches, you'll have to nest case expressions.
+--      * We also have a *very simple* kind of pattern matching on tuples.
+--        We can use a let expression to break a tuple into its parts
+--        (if you have nested tuples, you'll have to use nested lets).

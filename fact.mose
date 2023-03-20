@@ -1,0 +1,14 @@
+-- factorial function in Moses
+--
+
+letrec fact = \n :: INT => if n == 0 then 1
+                                     else n * fact (n - 1)
+in     fact 20
+
+-- Things to notice compared to Haskell:
+--      * We have defined the factorial function using a lambda.
+--      * Because the definition of fact refers to itself, we must use letrec
+--        rather than let.
+--      * We need to specify the type of the arguments.
+--      * Moses doesn't pattern matching on numbers, nor does it have guards, 
+--        so we have to use an if expression to handle the base case.

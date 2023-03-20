@@ -1,0 +1,13 @@
+-- factorial function in Moses
+--
+
+letrec fact (n :: INT) = if n == 0 then 1
+                                   else n * fact (n - 1)
+in     fact 20
+
+-- Things to notice compared to Haskell:
+--      * This code is the same as the previous version in fact.mose, but
+--        shows syntactic sugar. Rather than write the lambda directly, we can
+--        list parameters after the function name.
+--      * Notice what happens when you run it, the syntactic sugar is expanded
+--        to be the same as the previous version.

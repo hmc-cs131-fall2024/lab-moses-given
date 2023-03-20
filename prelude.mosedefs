@@ -1,0 +1,121 @@
+-- NAMING CONVENTIONS
+--
+-- Internal functions that are used by the interpreter internals are
+-- written as `_foo_', whereas functions that are available to the user
+-- are written without these underscores.
+-- 
+-- Thus, you'll often see something like
+-- 
+--   _foo_ = ....
+-- 
+--   foo = _foo_
+-- 
+-- that way, if the user defines their own value that just so happens to
+-- be called the same as foo, it won't break anything.
+   
+-- Implementation of recursion (internal, no type)
+
+_Y_ = \f => (\x => f (x x)) (\x => f (x x));
+_cond_ = \x => x;
+
+-- Error function never returns, so it can promise the world
+
+error       :: STRING -> NONE;
+error       =  _error_;
+
+undefined :: NONE;
+undefined = _error_ "undefined value evaluated";
+
+-- Bonus Integer Operations
+
+mod :: INT -> INT -> INT;
+mod = _mod_;
+
+-- Implementation of bools
+
+_true_  = \t => \f => t;
+_false_ = \t => \f => f;
+
+not         :: BOOL -> BOOL;
+and         :: BOOL -> (BOOL -> BOOL);
+or          :: BOOL -> (BOOL -> BOOL);
+xor         :: BOOL -> (BOOL -> BOOL);
+xnor        :: BOOL -> (BOOL -> BOOL);
+
+not  = \b => \trueCase => \falseCase => b falseCase trueCase;
+and  = \b1 => b1 (\x => x) (\_ => False);
+or   = \b1 => b1 (\_ => True) (\x => x);
+xor  = \b1 => b1 (\x => not x) (\x => x);
+xnor = \b1 => b1 (\x => x) (\x => not x);
+
+-- Implementation of lists
+
+_nil_     = \nilCase => \consCase => nilCase;
+_cons_    = \hd => \tl => \nilCase => \consCase => consCase hd tl;
+_case_    = \l => l;
+_append_  = _Y_ (\append => \x => \y => 
+                     case x of
+                         [] -> y
+                       | h : t -> h : append t y);
+
+example1 :: [REAL];
+example1 = [1,2,3.0,4,5];
+example2 :: ([INT], (REAL,BOOL), [[STRING]]);
+example2 = ([1],(2.3,True),[["Foo"]]);
+example3 :: [INT];
+example3 = letrec natsFrom n = n:natsFrom (n+1) in natsFrom 1;
+
+_nil_       :: [NONE];
+isempty     :: [ANY] -> BOOL;
+head        :: [INT] -> INT;
+tail        :: [INT] -> [INT];
+
+isempty = \list => case list of []    -> True
+                              | h : t -> False;
+                           
+head = \list => case list of []    -> error "head on empty list"
+                           | h : t -> h;
+tail = \list => case list of []    -> error "head on empty list"
+                           | h : t -> t;
+
+
+-- Conversion to string
+
+stringOfBool    :: BOOL   -> STRING;
+stringOfInt     :: INT    -> STRING;
+stringOfReal    :: REAL   -> STRING;
+stringOfString  :: STRING -> STRING;
+stringOfAny     :: ANY    -> STRING;
+stringOfNone    :: NONE   -> STRING;
+
+stringOfInt       = _stringof_;    -- builtin
+stringOfReal      = \x -> _stringof_ (x + 0.0); -- force any INTs to REALs
+stringOfString    = _stringof_;    -- builtin
+stringOfBool      = \b  => if b then "True" else "False";
+stringOfAny       = \any  => "<??-who-knows-what-??>";
+stringOfNone      = \none => "_|_" ++ none;
+stringOfFun       = \tystr => \func => "<func :: " ++ tystr ++ ">";
+
+-- there is no stringOfTuple function, since it would have a variable
+-- number of arguments depending on the size of the tuple, instead the
+-- necessary function is generated on the fly (!!)
+
+stringOfList = \str => \list =>
+    letrec loop = \list =>
+        case list of
+           [] -> "]"
+         | x0 : x1s ->
+            str x0 ++  case x1s of 
+                           [] -> "]"
+                         | x1 : x2s -> ", " ++ loop x1s
+    in  "[" ++ (loop list);
+
+                          
+stringOfIntList :: [INT]  -> STRING;
+
+-- Equality on more complex data than builtin _equals_ supports
+
+equalBools            :: BOOL -> BOOL -> BOOL;
+equalBoolLists        :: [BOOL] -> [BOOL] -> BOOL;
+equalIntLists         :: [INT] -> [INT] -> BOOL;
+equalIntBoolPairLists :: [(INT,BOOL)] -> [(INT,BOOL)] -> BOOL;
